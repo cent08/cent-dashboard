@@ -2,15 +2,27 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('centrobles@gmail.com')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    router.push('/')
+    setError('')
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    setLoading(false)
+    if (error) {
+      setError(error.message)
+    } else {
+      router.push('/earnings')
+      router.refresh()
+    }
   }
 
   return (
@@ -53,7 +65,6 @@ export default function LoginPage() {
           ◆
         </div>
 
-        {/* Title */}
         <h1
           style={{
             fontSize: '28px',
@@ -66,7 +77,6 @@ export default function LoginPage() {
           Welcome back, Cent
         </h1>
 
-        {/* Subtitle */}
         <p
           style={{
             fontSize: '14px',
@@ -78,9 +88,24 @@ export default function LoginPage() {
           Sign in to your AI Automation Dashboard
         </p>
 
-        {/* Form */}
+        {error && (
+          <div
+            style={{
+              background: 'rgba(255, 82, 82, 0.1)',
+              border: '1px solid rgba(255, 82, 82, 0.3)',
+              borderRadius: '8px',
+              padding: '12px',
+              marginBottom: '20px',
+              fontSize: '13px',
+              color: '#ff5252',
+              textAlign: 'center',
+            }}
+          >
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSignIn}>
-          {/* Email Input */}
           <div style={{ marginBottom: '20px' }}>
             <label
               style={{
@@ -97,6 +122,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
               style={{
                 width: '100%',
                 padding: '12px',
@@ -110,7 +136,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Password Input */}
           <div style={{ marginBottom: '16px' }}>
             <label
               style={{
@@ -127,6 +152,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
               style={{
                 width: '100%',
                 padding: '12px',
@@ -140,7 +166,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Forgot Password Link */}
           <div style={{ textAlign: 'right', marginBottom: '24px' }}>
             <a
               href="#"
@@ -155,27 +180,28 @@ export default function LoginPage() {
             </a>
           </div>
 
-          {/* Sign In Button */}
           <button
             type="submit"
+            disabled={loading}
             style={{
               width: '100%',
               padding: '12px',
               borderRadius: '8px',
               border: 'none',
-              background: 'linear-gradient(135deg, #6C5CE7, #7C6CF7)',
+              background: loading
+                ? 'rgba(108, 92, 231, 0.5)'
+                : 'linear-gradient(135deg, #6C5CE7, #7C6CF7)',
               color: 'white',
               fontSize: '14px',
               fontWeight: '600',
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
               marginBottom: '24px',
             }}
           >
-            Sign In
+            {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
 
-        {/* Footer */}
         <p
           style={{
             fontSize: '14px',
@@ -183,7 +209,7 @@ export default function LoginPage() {
             textAlign: 'center',
           }}
         >
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <a
             href="/signup"
             style={{

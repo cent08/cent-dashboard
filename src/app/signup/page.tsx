@@ -1,17 +1,38 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 export default function SignupPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    router.push('/')
+    setError('')
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters')
+      return
+    }
+
+    setLoading(true)
+    const { error } = await supabase.auth.signUp({ email, password })
+    setLoading(false)
+
+    if (error) {
+      setError(error.message)
+    } else {
+      setSuccess(true)
+    }
   }
 
   return (
@@ -54,166 +75,209 @@ export default function SignupPage() {
           ◆
         </div>
 
-        {/* Title */}
-        <h1
-          style={{
-            fontSize: '28px',
-            fontWeight: '700',
-            color: 'var(--text)',
-            marginBottom: '8px',
-            textAlign: 'center',
-          }}
-        >
-          Create your account
-        </h1>
-
-        {/* Subtitle */}
-        <p
-          style={{
-            fontSize: '14px',
-            color: 'var(--text-secondary)',
-            textAlign: 'center',
-            marginBottom: '32px',
-          }}
-        >
-          Start tracking your AI automation career
-        </p>
-
-        {/* Form */}
-        <form onSubmit={handleSignUp}>
-          {/* Email Input */}
-          <div style={{ marginBottom: '20px' }}>
-            <label
+        {success ? (
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text)', marginBottom: '12px' }}>
+              Check your email
+            </h1>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+              We sent a confirmation link to <strong>{email}</strong>. Click the link to activate your account.
+            </p>
+            <a
+              href="/login"
               style={{
-                display: 'block',
+                display: 'inline-block',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #6C5CE7, #7C6CF7)',
+                color: 'white',
                 fontSize: '14px',
-                fontWeight: '500',
-                color: 'var(--text)',
-                marginBottom: '8px',
+                fontWeight: '600',
+                textDecoration: 'none',
               }}
             >
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid var(--border)',
-                backgroundColor: 'var(--background)',
-                color: 'var(--text)',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-              }}
-            />
+              Back to Sign In
+            </a>
           </div>
-
-          {/* Password Input */}
-          <div style={{ marginBottom: '20px' }}>
-            <label
+        ) : (
+          <>
+            <h1
               style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
+                fontSize: '28px',
+                fontWeight: '700',
                 color: 'var(--text)',
                 marginBottom: '8px',
+                textAlign: 'center',
               }}
             >
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 8 characters"
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid var(--border)',
-                backgroundColor: 'var(--background)',
-                color: 'var(--text)',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+              Create your account
+            </h1>
 
-          {/* Confirm Password Input */}
-          <div style={{ marginBottom: '24px' }}>
-            <label
+            <p
               style={{
-                display: 'block',
                 fontSize: '14px',
-                fontWeight: '500',
-                color: 'var(--text)',
-                marginBottom: '8px',
+                color: 'var(--text-secondary)',
+                textAlign: 'center',
+                marginBottom: '32px',
               }}
             >
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm your password"
+              Start tracking your AI automation career
+            </p>
+
+            {error && (
+              <div
+                style={{
+                  background: 'rgba(255, 82, 82, 0.1)',
+                  border: '1px solid rgba(255, 82, 82, 0.3)',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  marginBottom: '20px',
+                  fontSize: '13px',
+                  color: '#ff5252',
+                  textAlign: 'center',
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSignUp}>
+              <div style={{ marginBottom: '20px' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: 'var(--text)',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                    backgroundColor: 'var(--background)',
+                    color: 'var(--text)',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: 'var(--text)',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="At least 8 characters"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                    backgroundColor: 'var(--background)',
+                    color: 'var(--text)',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: 'var(--text)',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm your password"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                    backgroundColor: 'var(--background)',
+                    color: 'var(--text)',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: loading
+                    ? 'rgba(108, 92, 231, 0.5)'
+                    : 'linear-gradient(135deg, #6C5CE7, #7C6CF7)',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  marginBottom: '24px',
+                }}
+              >
+                {loading ? 'Creating account…' : 'Create Account'}
+              </button>
+            </form>
+
+            <p
               style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid var(--border)',
-                backgroundColor: 'var(--background)',
-                color: 'var(--text)',
                 fontSize: '14px',
-                boxSizing: 'border-box',
+                color: 'var(--text-secondary)',
+                textAlign: 'center',
               }}
-            />
-          </div>
-
-          {/* Create Account Button */}
-          <button
-            type="submit"
-            style={{
-              width: '100%',
-              padding: '12px',
-              borderRadius: '8px',
-              border: 'none',
-              background: 'linear-gradient(135deg, #6C5CE7, #7C6CF7)',
-              color: 'white',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              marginBottom: '24px',
-            }}
-          >
-            Create Account
-          </button>
-        </form>
-
-        {/* Footer */}
-        <p
-          style={{
-            fontSize: '14px',
-            color: 'var(--text-secondary)',
-            textAlign: 'center',
-          }}
-        >
-          Already have an account?{' '}
-          <a
-            href="/login"
-            style={{
-              color: 'var(--accent)',
-              textDecoration: 'none',
-              fontWeight: '600',
-            }}
-          >
-            Sign in
-          </a>
-        </p>
+            >
+              Already have an account?{' '}
+              <a
+                href="/login"
+                style={{
+                  color: 'var(--accent)',
+                  textDecoration: 'none',
+                  fontWeight: '600',
+                }}
+              >
+                Sign in
+              </a>
+            </p>
+          </>
+        )}
       </div>
     </div>
   )
