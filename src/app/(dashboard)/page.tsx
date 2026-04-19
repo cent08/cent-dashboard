@@ -3,13 +3,11 @@
 import { DollarSign, Target, Clock, Heart } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { useData } from '@/lib/DataContext'
-import { getMonthlyEarnings, getTotalEarnings, getClientTotals, getTotalTrainingHours, getTodaySteps } from '@/lib/data-helpers'
+import { getMonthlyEarningsChart, getTotalEarnings, getClientTotals, getTotalTrainingHours, getTodaySteps } from '@/lib/data-helpers'
 import { fmt, getGreeting } from '@/lib/utils'
 import { CAT_COLORS, CLIENT_COLORS } from '@/lib/store'
 import StatCard from '@/components/ui/StatCard'
 import ProgressBar from '@/components/ui/ProgressBar'
-
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
 export default function DashboardPage() {
   const { data } = useData()
@@ -18,10 +16,8 @@ export default function DashboardPage() {
   const hours = getTotalTrainingHours(data)
   const todaySteps = getTodaySteps(data)
   const stepsPct = Math.min(Math.round((todaySteps / data.stepsGoal) * 100), 100)
-  const monthly = getMonthlyEarnings(data)
   const clientTotals = getClientTotals(data)
-
-  const chartData = MONTHS.map((m, i) => ({ name: m, value: monthly[i] }))
+  const chartData = getMonthlyEarningsChart(data)
 
   return (
     <div>
