@@ -25,7 +25,11 @@ export default function SignupPage() {
     }
 
     setLoading(true)
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/earnings` },
+    })
     setLoading(false)
 
     if (error) {
