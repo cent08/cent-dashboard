@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, ReactNode } from 'react'
+import { useState, useEffect, ReactNode } from 'react'
 import Sidebar from './Sidebar'
 import { DataProvider, useData } from '@/lib/DataContext'
 
@@ -9,16 +9,14 @@ interface AppShellProps {
 }
 
 function Shell({ children }: AppShellProps) {
-  const [isDark, setIsDark] = useState(true)
+  const [isDark, setIsDark] = useState(false)
   const { loading } = useData()
 
-  const toggleTheme = () => {
-    setIsDark(prev => {
-      const next = !prev
-      document.documentElement.classList.toggle('light', !next)
-      return next
-    })
-  }
+  useEffect(() => {
+    document.documentElement.classList.toggle('light', !isDark)
+  }, [isDark])
+
+  const toggleTheme = () => setIsDark(prev => !prev)
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
