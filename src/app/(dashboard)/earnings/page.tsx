@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { DollarSign, Clock, Users, TrendingUp, Plus, Upload, UserPlus, Settings, Trash2 } from 'lucide-react'
+import { Banknote, Clock, Users, TrendingUp, Plus, Upload, UserPlus, Settings, Trash2 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { useData } from '@/lib/DataContext'
-import { getMonthlyEarnings, getTotalEarnings, getClientTotals } from '@/lib/data-helpers'
+import { getMonthlyEarningsChart, getTotalEarnings, getClientTotals } from '@/lib/data-helpers'
 import { fmt, formatDate } from '@/lib/utils'
 import { CLIENT_COLORS } from '@/lib/store'
 import StatCard from '@/components/ui/StatCard'
@@ -12,7 +12,6 @@ import Modal from '@/components/ui/Modal'
 import GoalRing from '@/components/ui/GoalRing'
 import { useToast } from '@/components/ui/Toast'
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
 export default function EarningsPage() {
   const { data, addPayment, deletePayment, addClient, toggleClientStatus, setIncomeGoal } = useData()
@@ -43,9 +42,8 @@ export default function EarningsPage() {
   const activeClients = new Set(data.payments.map(p => p.clientId)).size
   const monthsWithData = new Set(data.payments.map(p => new Date(p.date).getMonth())).size
   const avg = monthsWithData > 0 ? Math.round(total / monthsWithData) : 0
-  const monthly = getMonthlyEarnings(data)
+  const chartData = getMonthlyEarningsChart(data)
   const clientTotals = getClientTotals(data)
-  const chartData = MONTHS.map((m, i) => ({ name: m, value: monthly[i] }))
 
   function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -111,7 +109,7 @@ export default function EarningsPage() {
 
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
-        <StatCard icon={<DollarSign size={22} style={{ color: 'var(--green)' }} />} iconBg="var(--green-bg)" label="YTD Earnings" value={fmt(total)} />
+        <StatCard icon={<Banknote size={22} style={{ color: 'var(--green)' }} />} iconBg="var(--green-bg)" label="YTD Earnings" value={fmt(total)} />
         <StatCard icon={<Clock size={22} style={{ color: 'var(--accent)' }} />} iconBg="var(--accent-glow)" label="2026 Goal" value={fmt(data.incomeGoal)} extra={<span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{goalPct}%</span>} />
         <StatCard icon={<Users size={22} style={{ color: 'var(--blue)' }} />} iconBg="var(--blue-bg)" label="Active Clients" value={activeClients.toString()} />
         <StatCard icon={<TrendingUp size={22} style={{ color: 'var(--orange)' }} />} iconBg="var(--orange-bg)" label="Avg Monthly" value={fmt(avg)} />

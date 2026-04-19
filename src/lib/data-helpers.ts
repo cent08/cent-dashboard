@@ -9,6 +9,33 @@ export function getMonthlyEarnings(data: DashboardData): number[] {
   return months
 }
 
+const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+export function getMonthlyEarningsChart(data: DashboardData): { name: string; value: number }[] {
+  if (data.payments.length === 0) return []
+
+  const byMonth: Record<string, number> = {}
+  data.payments.forEach(p => {
+    const d = new Date(p.date)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    byMonth[key] = (byMonth[key] || 0) + p.amount
+  })
+
+  const keys = Object.keys(byMonth).sort()
+  const [minYear, minMonth] = keys[0].split('-').map(Number)
+  const [maxYear, maxMonth] = keys[keys.length - 1].split('-').map(Number)
+
+  const result: { name: string; value: number }[] = []
+  let y = minYear, m = minMonth
+  while (y < maxYear || (y === maxYear && m <= maxMonth)) {
+    const key = `${y}-${String(m).padStart(2, '0')}`
+    result.push({ name: `${MONTH_LABELS[m - 1]} '${String(y).slice(2)}`, value: byMonth[key] || 0 })
+    m++
+    if (m > 12) { m = 1; y++ }
+  }
+  return result
+}
+
 export function getTotalEarnings(data: DashboardData): number {
   return data.payments.reduce((s, p) => s + p.amount, 0)
 }
