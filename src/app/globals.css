@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0B0F1A;
+  --surface: #131825;
+  --surface-hover: #1A2035;
+  --card: #161C2E;
+  --card-border: #1E2742;
+  --sidebar-bg: #0E1220;
+  --sidebar-border: #1A2035;
+  --text: #E8ECF4;
+  --text-secondary: #8892A8;
+  --text-muted: #5A6480;
+  --accent: #6C5CE7;
+  --accent-light: #8B7CF6;
+  --accent-glow: rgba(108,92,231,0.15);
+  --green: #00D68F;
+  --green-bg: rgba(0,214,143,0.12);
+  --red: #FF6B6B;
+  --red-bg: rgba(255,107,107,0.12);
+  --orange: #FDAB3D;
+  --orange-bg: rgba(253,171,61,0.12);
+  --blue: #4DA8FF;
+  --blue-bg: rgba(77,168,255,0.12);
+  --pink: #FF6EAD;
+  --pink-bg: rgba(255,110,173,0.12);
+  --cyan: #00D4FF;
+  --yellow: #FFE066;
+  --chart-grid: #1E2742;
+}
+
+.light {
+  --bg: #F4F6FA;
+  --surface: #FFFFFF;
+  --surface-hover: #F0F2F7;
+  --card: #FFFFFF;
+  --card-border: #E2E6EF;
+  --sidebar-bg: #FFFFFF;
+  --sidebar-border: #E8ECF4;
+  --text: #1A1F36;
+  --text-secondary: #5A6480;
+  --text-muted: #8892A8;
+  --accent: #6C5CE7;
+  --accent-light: #8B7CF6;
+  --accent-glow: rgba(108,92,231,0.08);
+  --green: #00B87A;
+  --green-bg: rgba(0,184,122,0.1);
+  --red: #E74C4C;
+  --red-bg: rgba(231,76,76,0.08);
+  --orange: #E89B20;
+  --orange-bg: rgba(232,155,32,0.08);
+  --blue: #2E86DE;
+  --blue-bg: rgba(46,134,222,0.08);
+  --pink: #E84393;
+  --pink-bg: rgba(232,67,147,0.08);
+  --cyan: #00A8CC;
+  --yellow: #F0C000;
+  --chart-grid: #E8ECF4;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
