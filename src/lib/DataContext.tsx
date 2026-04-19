@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { DashboardData, initialData, Client, Payment, Course, TrainingLog, DailySteps } from './store'
 
 interface DataContextType {
@@ -21,7 +21,19 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined)
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<DashboardData>(initialData)
+  const [data, setData] = useState<DashboardData>(() => {
+    if (typeof window === 'undefined') return initialData
+    try {
+      const saved = localStorage.getItem('cent-dashboard-data')
+      return saved ? JSON.parse(saved) : initialData
+    } catch {
+      return initialData
+    }
+  })
+
+  useEffect(() => {
+    localStorage.setItem('cent-dashboard-data', JSON.stringify(data))
+  }, [data])
 
   const addClient = (name: string, platform: string) => {
     setData(prevData => ({
