@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { DollarSign, Clock, Users, TrendingUp, Plus, Upload, UserPlus, Settings } from 'lucide-react'
+import { DollarSign, Clock, Users, TrendingUp, Plus, Upload, UserPlus, Settings, Trash2 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { useData } from '@/lib/DataContext'
 import { getMonthlyEarnings, getTotalEarnings, getClientTotals } from '@/lib/data-helpers'
@@ -15,7 +15,7 @@ import { useToast } from '@/components/ui/Toast'
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
 export default function EarningsPage() {
-  const { data, addPayment, addClient, toggleClientStatus, setIncomeGoal } = useData()
+  const { data, addPayment, deletePayment, addClient, toggleClientStatus, setIncomeGoal } = useData()
   const { showToast } = useToast()
 
   const [paymentModal, setPaymentModal] = useState(false)
@@ -154,7 +154,7 @@ export default function EarningsPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              {['Client', 'Amount', 'Date', 'Screenshot', 'Notes'].map(h => (
+              {['Client', 'Amount', 'Date', 'Screenshot', 'Notes', ''].map(h => (
                 <th key={h} style={{ textAlign: 'left', padding: '10px 16px', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', borderBottom: '1px solid var(--card-border)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{h}</th>
               ))}
             </tr>
@@ -182,6 +182,11 @@ export default function EarningsPage() {
                     )}
                   </td>
                   <td style={{ ...tdStyle, fontSize: 13, color: 'var(--text-secondary)' }}>{p.notes || '-'}</td>
+                  <td style={tdStyle}>
+                    <button onClick={() => { deletePayment(p.id); showToast('Payment deleted') }} style={btnDelete} title="Delete">
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
                 </tr>
               )
             })}
@@ -343,3 +348,4 @@ const inputStyle: React.CSSProperties = { width: '100%', padding: '12px 16px', b
 const btnOutline: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', border: '1px solid var(--card-border)', background: 'var(--surface)', color: 'var(--text)', fontFamily: 'inherit' }
 const btnAccent: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #6C5CE7, #7C6CF7)', color: '#fff', fontFamily: 'inherit' }
 const btnSmall: React.CSSProperties = { padding: '8px 16px', fontSize: 11, borderRadius: 8, fontWeight: 600, cursor: 'pointer', border: '1px solid var(--card-border)', background: 'var(--surface)', color: 'var(--text)', fontFamily: 'inherit' }
+const btnDelete: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '6px', borderRadius: 8, border: '1px solid var(--card-border)', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }

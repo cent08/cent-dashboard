@@ -8,10 +8,13 @@ interface DataContextType {
   addClient: (name: string, platform: string) => void
   toggleClientStatus: (clientId: number) => void
   addPayment: (clientId: number, amount: number, date: string, notes: string, screenshot?: { name: string; dataUrl: string }) => void
+  deletePayment: (id: number) => void
   addCourse: (name: string, category: string, totalHours: number) => void
   logHours: (courseId: number, hours: number, date: string, notes: string) => void
+  deleteTrainingLog: (id: number, courseId: number, hours: number) => void
   setIncomeGoal: (amount: number) => void
   logSteps: (date: string, steps: number, notes: string) => void
+  deleteStepsEntry: (date: string) => void
   setStepsGoal: (goal: number) => void
 }
 
@@ -108,20 +111,38 @@ export function DataProvider({ children }: { children: ReactNode }) {
         ...prevData,
         trainingLogs: [
           ...prevData.trainingLogs,
-          {
-            courseId,
-            hours,
-            date,
-            notes,
-          },
+          { id: prevData.nextId.trainingLog, courseId, hours, date, notes },
         ],
-        courses: prevData.courses.map(course =>
-          course.id === courseId
-            ? { ...course, completedHours: newCompletedHours }
-            : course
+        courses: prevData.courses.map(c =>
+          c.id === courseId ? { ...c, completedHours: newCompletedHours } : c
         ),
+        nextId: { ...prevData.nextId, trainingLog: prevData.nextId.trainingLog + 1 },
       }
     })
+  }
+
+  const deleteTrainingLog = (id: number, courseId: number, hours: number) => {
+    setData(prevData => ({
+      ...prevData,
+      trainingLogs: prevData.trainingLogs.filter(l => l.id !== id),
+      courses: prevData.courses.map(c =>
+        c.id === courseId ? { ...c, completedHours: Math.max(0, c.completedHours - hours) } : c
+      ),
+    }))
+  }
+
+  const deletePayment = (id: number) => {
+    setData(prevData => ({
+      ...prevData,
+      payments: prevData.payments.filter(p => p.id !== id),
+    }))
+  }
+
+  const deleteStepsEntry = (date: string) => {
+    setData(prevData => ({
+      ...prevData,
+      dailySteps: prevData.dailySteps.filter(s => s.date !== date),
+    }))
   }
 
   const setIncomeGoal = (amount: number) => {
@@ -170,10 +191,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     addClient,
     toggleClientStatus,
     addPayment,
+    deletePayment,
     addCourse,
     logHours,
+    deleteTrainingLog,
     setIncomeGoal,
     logSteps,
+    deleteStepsEntry,
     setStepsGoal,
   }
 

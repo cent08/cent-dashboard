@@ -26,6 +26,7 @@ export interface Course {
 }
 
 export interface TrainingLog {
+  id: number
   courseId: number
   hours: number
   date: string
@@ -46,7 +47,7 @@ export interface DashboardData {
   dailySteps: DailySteps[]
   incomeGoal: number
   stepsGoal: number
-  nextId: { client: number; payment: number; course: number }
+  nextId: { client: number; payment: number; course: number; trainingLog: number }
 }
 
 export const initialData: DashboardData = {
@@ -86,7 +87,7 @@ export const initialData: DashboardData = {
   ],
   incomeGoal: 2500000,
   stepsGoal: 10000,
-  nextId: { client: 5, payment: 11, course: 5 },
+  nextId: { client: 5, payment: 11, course: 5, trainingLog: 1 },
 }
 
 export const CAT_COLORS: Record<string, string> = {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Clock } from 'lucide-react'
+import { Plus, Clock, Trash2 } from 'lucide-react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { useData } from '@/lib/DataContext'
 import { getCategoryHours, getTotalTrainingHours } from '@/lib/data-helpers'
@@ -9,11 +9,12 @@ import { CAT_COLORS } from '@/lib/store'
 import ProgressBar from '@/components/ui/ProgressBar'
 import Modal from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
+import { formatDateLong } from '@/lib/utils'
 
 const CAT_BGS: Record<string, string> = { N8N: 'var(--pink-bg)', GHL: 'var(--blue-bg)', Claude: 'var(--accent-glow)', Other: 'var(--orange-bg)' }
 
 export default function TrainingPage() {
-  const { data, addCourse, logHours } = useData()
+  const { data, addCourse, logHours, deleteTrainingLog } = useData()
   const { showToast } = useToast()
 
   const [courseModal, setCourseModal] = useState(false)
@@ -133,6 +134,49 @@ export default function TrainingPage() {
         </div>
       </div>
 
+      {/* Training Log Table */}
+      {data.trainingLogs.length > 0 && (
+        <div style={{ ...cardStyle, marginBottom: 24 }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 20 }}>Training Log</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                {['Date', 'Course', 'Hours', 'Notes', ''].map(h => (
+                  <th key={h} style={thStyle}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[...data.trainingLogs]
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .map(log => {
+                  const course = data.courses.find(c => c.id === log.courseId)
+                  const color = CAT_COLORS[course?.category || ''] || '#FDAB3D'
+                  return (
+                    <tr key={log.id}>
+                      <td style={tdStyle}><span style={{ fontWeight: 600, color: 'var(--text)' }}>{formatDateLong(log.date)}</span></td>
+                      <td style={tdStyle}>
+                        <span style={{ fontWeight: 500, color: 'var(--text)' }}>{course?.name || 'Unknown'}</span>
+                        {course && <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: `${color}22`, color }}>{course.category}</span>}
+                      </td>
+                      <td style={tdStyle}><span style={{ fontWeight: 700, color: 'var(--accent)' }}>{log.hours}h</span></td>
+                      <td style={{ ...tdStyle, fontSize: 13, color: 'var(--text-secondary)' }}>{log.notes || '-'}</td>
+                      <td style={tdStyle}>
+                        <button
+                          onClick={() => { deleteTrainingLog(log.id, log.courseId, log.hours); showToast('Training log deleted') }}
+                          style={btnDelete} title="Delete"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* Add Course Modal */}
       <Modal isOpen={courseModal} onClose={() => setCourseModal(false)} title="Add Training Course" subtitle="Add a new course to track your learning">
         <div style={{ marginBottom: 16 }}>
@@ -190,3 +234,6 @@ const labelStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: 
 const inputStyle: React.CSSProperties = { width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'var(--surface)', color: 'var(--text)', fontSize: 14, fontFamily: 'inherit', outline: 'none' }
 const btnOutline: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', border: '1px solid var(--card-border)', background: 'var(--surface)', color: 'var(--text)', fontFamily: 'inherit' }
 const btnAccent: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #6C5CE7, #7C6CF7)', color: '#fff', fontFamily: 'inherit' }
+const thStyle: React.CSSProperties = { textAlign: 'left', padding: '10px 16px', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', borderBottom: '1px solid var(--card-border)', textTransform: 'uppercase', letterSpacing: 0.5 }
+const tdStyle: React.CSSProperties = { padding: '14px 16px', borderBottom: '1px solid var(--card-border)', fontSize: 14 }
+const btnDelete: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '6px', borderRadius: 8, border: '1px solid var(--card-border)', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }

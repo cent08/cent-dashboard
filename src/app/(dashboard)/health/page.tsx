@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Settings } from 'lucide-react'
+import { Plus, Settings, Trash2 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 import { useData } from '@/lib/DataContext'
 import { getTodaySteps, getWeeklySteps, getWeeklyAvg, getStreak } from '@/lib/data-helpers'
@@ -12,7 +12,7 @@ import { useToast } from '@/components/ui/Toast'
 import { formatDateLong } from '@/lib/utils'
 
 export default function HealthPage() {
-  const { data, logSteps, setStepsGoal } = useData()
+  const { data, logSteps, deleteStepsEntry, setStepsGoal } = useData()
   const { showToast } = useToast()
 
   const [logModal, setLogModal] = useState(false)
@@ -123,7 +123,7 @@ export default function HealthPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              {['Date', 'Steps', 'Goal', 'Progress', 'Notes'].map(h => (
+              {['Date', 'Steps', 'Goal', 'Progress', 'Notes', ''].map(h => (
                 <th key={h} style={thStyle}>{h}</th>
               ))}
             </tr>
@@ -146,6 +146,11 @@ export default function HealthPage() {
                     </div>
                   </td>
                   <td style={{ ...tdStyle, fontSize: 13, color: 'var(--text-secondary)' }}>{s.notes || '-'}</td>
+                  <td style={tdStyle}>
+                    <button onClick={() => { deleteStepsEntry(s.date); showToast('Steps entry deleted') }} style={btnDelete} title="Delete">
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
                 </tr>
               )
             })}
@@ -203,3 +208,4 @@ const labelStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: 
 const inputStyle: React.CSSProperties = { width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'var(--surface)', color: 'var(--text)', fontSize: 14, fontFamily: 'inherit', outline: 'none' }
 const btnOutline: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', border: '1px solid var(--card-border)', background: 'var(--surface)', color: 'var(--text)', fontFamily: 'inherit' }
 const btnGreen: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #00D68F, #4DA8FF)', color: '#fff', fontFamily: 'inherit' }
+const btnDelete: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '6px', borderRadius: 8, border: '1px solid var(--card-border)', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }
